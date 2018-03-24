@@ -22,7 +22,7 @@ save_figure(game, 'puzzle_solution.png', solution=True)
 ![](readme_examples/puzzle.png)
 
 ### Solution
-![](readme_examples/puzzle_solution.png
+![](readme_examples/puzzle_solution.png)
 
 ## TODO
 Continue adding/fine tuning of various options to control the 
