@@ -19,7 +19,7 @@ save_figure(game, 'puzzle.png', solution=False)
 save_figure(game, 'puzzle_solution.png', solution=True)
 ```
 ### Puzzle
-![](readme_examples/puzzle.png])
+![](readme_examples/puzzle.png)
 
 ### Solution
 ![](readme_examples/puzzle_solution.png)
