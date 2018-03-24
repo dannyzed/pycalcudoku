@@ -29,11 +29,13 @@ def partition_board(size, num_partitions, max_partition_size, min_partition_size
     """
     Partitions a board size into a set of groups
     """
+    # TODO: Clean up this logic
     partitions = []
 
     # Create a graph like structure that is initialized with the size x size board
     # size*size list with elements (position, connections)
     graph = [(i, [i-1, i+1, i-size, i+size]) for i in range(size*size)]
+    graph_map = {i: i for i in range(size*size)}
 
     # Remove the connections that are off the board
     for g in graph:
@@ -45,6 +47,11 @@ def partition_board(size, num_partitions, max_partition_size, min_partition_size
         g = np.random.choice(graph)
         # Vertex to add on
         v = np.random.choice(g[1])
+
+        graph_to_merge_with = graph[graph_map[v]]
+
+        # Merge together
+
 
 
 
