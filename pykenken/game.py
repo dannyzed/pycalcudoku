@@ -144,3 +144,11 @@ class KenKen(object):
     @property
     def board(self):
         return self._board
+
+    @property
+    def partitions(self):
+        return self._partitions
+
+    @property
+    def operations(self):
+        return self._operations
