@@ -52,15 +52,15 @@ def random_board(size):
 
 
 def partition_board(size, max_partition_size,
-                    initial_choice_size_factor=0.2,
-                    merge_size_factor=0.2):
+                    initial_choice_size_factor=1,
+                    merge_size_factor=0.8):
     """
     Partitions a board size into a set of groups
     """
     graph = Graph(size)
 
     # Repeatedly merge nodes of the graph until some conditions are satisfied
-    for idx in range(800):
+    for idx in range(int(size*size/1.3)):
         # Calculate probability of picking a node as a starting merge point
         p = np.ones(len(graph.nodes))
         for i, n in enumerate(graph.nodes):
