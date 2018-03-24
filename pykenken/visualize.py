@@ -7,7 +7,8 @@ OPERATION_DRAW = {
     'divide': '%',
     'multiply': 'x',
     'add': '+',
-    'subtract': '-'
+    'subtract': '-',
+    'none': ''
 }
 
 
@@ -69,7 +70,7 @@ def save_figure(game: KenKen, filename, solution=False):
         max_y += 1 # Switch to the top of the cell
 
         if op[0] in OPERATION_DRAW:
-            vis = OPERATION_DRAW[op[0]] + str(op[1])
-            plt.text(min_x + 0.2, max_y - 0.2, vis)
+            vis = str(op[1]) + OPERATION_DRAW[op[0]]
+            plt.text(min_x + 0.1, max_y - 0.2, vis)
 
     plt.savefig(filename, bbox_inches='tight')
