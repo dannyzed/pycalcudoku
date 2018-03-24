@@ -1,4 +1,3 @@
-import numpy as np
 
 
 class Graph(object):
@@ -19,8 +18,17 @@ class Graph(object):
 
         self._edges[one] = new_edges
 
+        # Now we have to update the other node connections so they point to one
+        # instead of two
+        for edge in self._edges:
+            if self._nodes[two] in edge:
+                edge.remove(self._nodes[two])
+                edge.append(self._nodes[one])
+
         del self._nodes[two]
         del self._edges[two]
+
+
 
     @property
     def nodes(self):

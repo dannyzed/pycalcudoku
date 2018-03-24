@@ -1,5 +1,30 @@
 import numpy as np
+from pykenken.graph import Graph
 
+
+def identity(x):
+    return x[0]
+
+
+def divide(x):
+    if max(x) % min(x) == 0:
+        return max(x) / min(x)
+    else:
+        return np.nan
+
+
+def subtract(x):
+    return np.abs(x[1] - x[0])
+
+# Possible operations that can be done on a partition
+# (min_elements, max_elements, function)
+OPERATIONS = {
+    'divide': (2, 2, divide),
+    'multiply': (2, np.inf, np.multiply.reduce),
+    'add': (2, np.inf, np.add.reduce),
+    'subtract': (2, 2, subtract),
+    'none': (1, 1, identity),
+}
 
 def random_board(size):
     """
@@ -22,7 +47,7 @@ def random_board(size):
                 board[row, col] = np.random.choice(list(possible))
             else:
                 break
-    return board
+    return board.flatten()
 
 
 def partition_board(size, num_partitions, max_partition_size, min_partition_size):
@@ -30,32 +55,41 @@ def partition_board(size, num_partitions, max_partition_size, min_partition_size
     Partitions a board size into a set of groups
     """
     # TODO: Clean up this logic
-    partitions = []
+    graph = Graph(size)
 
-    # Create a graph like structure that is initialized with the size x size board
-    # size*size list with elements (position, connections)
-    graph = [(i, [i-1, i+1, i-size, i+size]) for i in range(size*size)]
-    graph_map = {i: i for i in range(size*size)}
+    # Repeatedly merge nodes of the graph until some conditions are satisfied
+    for idx in range(30):
+        node_idx = np.random.choice(list(range(len(graph.nodes))))
 
-    # Remove the connections that are off the board
-    for g in graph:
-        g[1] = [i for i in g[1] if i > 0 and i < size*size]
+        merge_node = np.random.choice(graph.edges[node_idx])
+        try:
+            merge_idx = graph.nodes.index(merge_node)
+        except ValueError:
+            # Should not happen
+            raise ValueError
 
-    # Randomly join together graph elements until we are satisfied with our conditions
-    while True:
-        # Element to join
-        g = np.random.choice(graph)
-        # Vertex to add on
-        v = np.random.choice(g[1])
+        if len(graph.nodes[node_idx].coords) + len(merge_node.coords) > max_partition_size:
+            continue
 
-        graph_to_merge_with = graph[graph_map[v]]
+        graph.merge(node_idx, merge_idx)
 
-        # Merge together
-
-
-
+    partitions = [n.coords for n in graph.nodes]
 
     return partitions
+
+
+def possible_operations(partitions):
+    all_possibles = []
+    for partition in partitions:
+        possibles = []
+
+        for name, (min_size, max_size, operation) in OPERATIONS.items():
+            if min_size <= len(partition) <= max_size:
+                val = operation(partition)
+                if ~np.isnan(val):
+                    possibles.append((name, val))
+        all_possibles.append(possibles)
+    return all_possibles
 
 
 class KenKen(object):
@@ -65,6 +99,14 @@ class KenKen(object):
 
         # Board is a 2d array that just stores the correct answers
         self._board = None
+
+        # Partitions looks like [[1, 4, 5], [2], ...] which stores the connections
+        # of the board coordinates
+        self._partitions = None
+
+        # Operations stores the game state, [('divide', 4), ('add', 7), ...]
+        # What each partition corresponds to in the game
+        self._operations = None
 
     @classmethod
     def generate(cls, size: int, **kwargs):
@@ -77,6 +119,25 @@ class KenKen(object):
         result._board = random_board(size)
 
         # Next partition the board into a set of connected groups
+        partitions = partition_board(size, 10, 4, 1)
+
+        # Get the values corresponding to each partition location
+        partition_values = []
+        for p in partitions:
+            partition_values.append([result._board[v] for v in p])
+
+        possibles = possible_operations(partition_values)
+
+        # Choose a random possible operation for each partition
+        # TODO: Proper logic here
+        chosen = []
+        for possible in possibles:
+            # Funny things happen when taking random.choice of a list of tuples
+            random_index = np.random.choice(list(range(len(possible))))
+            chosen.append(possible[random_index])
+
+        result._partitions = partitions
+        result._operations = chosen
 
         return result
 
