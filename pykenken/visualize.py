@@ -4,7 +4,7 @@ import numpy as np
 
 
 OPERATION_DRAW = {
-    'divide': '%',
+    'divide': '÷',
     'multiply': 'x',
     'add': '+',
     'subtract': '-',
@@ -15,7 +15,7 @@ OPERATION_DRAW = {
 def save_figure(game: KenKen, filename, solution=False):
     size = int(np.sqrt(len(game.board)))
 
-    plt.figure()
+    plt.figure(figsize=(48, 48))
 
     plt.xlim(0, size)
     plt.ylim(0, size)
@@ -74,3 +74,4 @@ def save_figure(game: KenKen, filename, solution=False):
             plt.text(min_x + 0.1, max_y - 0.2, vis)
 
     plt.savefig(filename, bbox_inches='tight')
+    pass

@@ -1,5 +1,6 @@
 import numpy as np
 from pykenken.graph import Graph
+from collections import defaultdict
 
 
 def identity(x):
@@ -8,7 +9,7 @@ def identity(x):
 
 def divide(x):
     if max(x) % min(x) == 0:
-        return max(x) / min(x)
+        return int(max(x) / min(x))
     else:
         return np.nan
 
@@ -50,23 +51,31 @@ def random_board(size):
     return board.flatten()
 
 
-def partition_board(size, num_partitions, max_partition_size, min_partition_size):
+def partition_board(size, max_partition_size,
+                    initial_choice_size_factor=0.2,
+                    merge_size_factor=0.2):
     """
     Partitions a board size into a set of groups
     """
-    # TODO: Clean up this logic
     graph = Graph(size)
 
     # Repeatedly merge nodes of the graph until some conditions are satisfied
-    for idx in range(30):
-        node_idx = np.random.choice(list(range(len(graph.nodes))))
+    for idx in range(800):
+        # Calculate probability of picking a node as a starting merge point
+        p = np.ones(len(graph.nodes))
+        for i, n in enumerate(graph.nodes):
+            p[i] /= np.exp(len(n.coords))**initial_choice_size_factor
+        p /= np.sum(p)
+        node_idx = np.random.choice(list(range(len(graph.nodes))), p=p)
 
-        merge_node = np.random.choice(graph.edges[node_idx])
-        try:
-            merge_idx = graph.nodes.index(merge_node)
-        except ValueError:
-            # Should not happen
-            raise ValueError
+        # Create some probabilities of picking which node to merge with
+        p = np.ones(len(graph.edges[node_idx]))
+        for i, n in enumerate(graph.edges[node_idx]):
+            p[i] /= np.exp(len(n.coords))**merge_size_factor
+        p /= np.sum(p)
+
+        merge_node = np.random.choice(graph.edges[node_idx], p=p)
+        merge_idx = graph.nodes.index(merge_node)
 
         if len(graph.nodes[node_idx].coords) + len(merge_node.coords) > max_partition_size:
             continue
@@ -109,7 +118,9 @@ class KenKen(object):
         self._operations = None
 
     @classmethod
-    def generate(cls, size: int, **kwargs):
+    def generate(cls, size: int,
+                 operation_p=None,
+                 operation_uniformity_factor=5):
         # kwargs to control rough difficulty settings
 
         result = cls()
@@ -119,7 +130,7 @@ class KenKen(object):
         result._board = random_board(size)
 
         # Next partition the board into a set of connected groups
-        partitions = partition_board(size, 10, 4, 1)
+        partitions = partition_board(size, max_partition_size=4)
 
         # Get the values corresponding to each partition location
         partition_values = []
@@ -129,12 +140,22 @@ class KenKen(object):
         possibles = possible_operations(partition_values)
 
         # Choose a random possible operation for each partition
-        # TODO: Proper logic here
         chosen = []
+        chosen_operations = defaultdict(int)
         for possible in possibles:
+            # Assign priorities for each possible operation
+            p = np.ones(len(possible))
+            for i, (op, v) in enumerate(possible):
+                if operation_p:
+                    p[i] *= operation_p[op]
+                p[i] /= np.exp(chosen_operations[op])**operation_uniformity_factor
+
+            p /= np.sum(p)
             # Funny things happen when taking random.choice of a list of tuples
-            random_index = np.random.choice(list(range(len(possible))))
+            random_index = np.random.choice(list(range(len(possible))), p=p)
             chosen.append(possible[random_index])
+
+            chosen_operations[possible[random_index][0]] += 1
 
         result._partitions = partitions
         result._operations = chosen
