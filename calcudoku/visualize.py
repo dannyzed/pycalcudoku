@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from pykenken.game import KenKen
+from calcudoku.game import Calcudoku
 import numpy as np
 
 
@@ -12,10 +12,10 @@ OPERATION_DRAW = {
 }
 
 
-def save_figure(game: KenKen, filename, solution=False):
+def save_figure(game: Calcudoku, filename, solution=False):
     size = int(np.sqrt(len(game.board)))
 
-    plt.figure(figsize=(48, 48))
+    plt.figure(figsize=(size, size))
 
     plt.xlim(0, size)
     plt.ylim(0, size)

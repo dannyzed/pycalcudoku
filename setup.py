@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='pykenken',
+    name='calcudoku',
     version='',
-    packages=['pykenken'],
+    packages=['calcudoku'],
     url='',
     license='',
-    author='zawad',
+    author='Daniel Zawada',
     author_email='',
-    description=''
+    description='', install_requires=['numpy', 'matplotlib']
 )

@@ -1,5 +1,5 @@
 import numpy as np
-from pykenken.graph import Graph
+from calcudoku.graph import Graph
 from collections import defaultdict
 
 
@@ -101,7 +101,7 @@ def possible_operations(partitions):
     return all_possibles
 
 
-class KenKen(object):
+class Calcudoku(object):
     def __init__(self):
         # Groups are dicts with 'coords', 'operation', and 'value'
         self._groups = []
