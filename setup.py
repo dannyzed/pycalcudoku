@@ -1,8 +1,10 @@
 from setuptools import setup
+import versioneer
 
 setup(
     name='calcudoku',
-    version='',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     packages=['calcudoku'],
     url='',
     license='',
