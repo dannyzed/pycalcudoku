@@ -8,7 +8,8 @@ OPERATION_DRAW = {
     'multiply': 'x',
     'add': '+',
     'subtract': '-',
-    'none': ''
+    'none': '',
+    'xor': '^'
 }
 
 
