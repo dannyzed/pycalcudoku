@@ -25,6 +25,7 @@ OPERATIONS = {
     'add': (2, np.inf, np.add.reduce),
     'subtract': (2, 2, subtract),
     'none': (1, 1, identity),
+    'xor': (2, np.inf, np.bitwise_xor.reduce),
 }
 
 def random_board(size):
@@ -60,7 +61,7 @@ def partition_board(size, max_partition_size,
     graph = Graph(size)
 
     # Repeatedly merge nodes of the graph until some conditions are satisfied
-    for idx in range(int(size*size/1.3)):
+    for idx in range(int(size*size/2)):
         # Calculate probability of picking a node as a starting merge point
         p = np.ones(len(graph.nodes))
         for i, n in enumerate(graph.nodes):
