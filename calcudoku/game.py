@@ -53,15 +53,18 @@ def random_board(size):
 
 
 def partition_board(size, max_partition_size,
-                    initial_choice_size_factor=1,
-                    merge_size_factor=0.8):
+                    initial_choice_size_factor=2,
+                    merge_size_factor=0.8,
+                    average_size_stop=3):
     """
     Partitions a board size into a set of groups
     """
     graph = Graph(size)
 
+    average_node_size = 1
+
     # Repeatedly merge nodes of the graph until some conditions are satisfied
-    for idx in range(int(size*size/2)):
+    while average_node_size < average_size_stop:
         # Calculate probability of picking a node as a starting merge point
         p = np.ones(len(graph.nodes))
         for i, n in enumerate(graph.nodes):
@@ -82,6 +85,10 @@ def partition_board(size, max_partition_size,
             continue
 
         graph.merge(node_idx, merge_idx)
+
+        node_lengths = [len(n.coords) for n in graph.nodes]
+
+        average_node_size = np.average(node_lengths)
 
     partitions = [n.coords for n in graph.nodes]
 
@@ -121,7 +128,7 @@ class Calcudoku(object):
     @classmethod
     def generate(cls, size: int,
                  operation_p=None,
-                 operation_uniformity_factor=5):
+                 operation_uniformity_factor=2):
         # kwargs to control rough difficulty settings
 
         result = cls()
@@ -131,7 +138,7 @@ class Calcudoku(object):
         result._board = random_board(size)
 
         # Next partition the board into a set of connected groups
-        partitions = partition_board(size, max_partition_size=4)
+        partitions = partition_board(size, max_partition_size=7)
 
         # Get the values corresponding to each partition location
         partition_values = []
@@ -149,7 +156,7 @@ class Calcudoku(object):
             for i, (op, v) in enumerate(possible):
                 if operation_p:
                     p[i] *= operation_p[op]
-                p[i] /= np.exp(chosen_operations[op])**operation_uniformity_factor
+                p[i] /= np.exp(chosen_operations[(len(possible), op)])**operation_uniformity_factor
 
             p /= np.sum(p)
             # Funny things happen when taking random.choice of a list of tuples
