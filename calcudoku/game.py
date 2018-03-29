@@ -163,7 +163,7 @@ class Calcudoku(object):
             random_index = np.random.choice(list(range(len(possible))), p=p)
             chosen.append(possible[random_index])
 
-            chosen_operations[possible[random_index][0]] += 1
+            chosen_operations[(len(possible), possible[random_index][0])] += 1
 
         result._partitions = partitions
         result._operations = chosen
