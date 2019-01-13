@@ -13,7 +13,8 @@ OPERATION_DRAW = {
 }
 
 
-def save_figure(game: Calcudoku, filename, solution=False):
+def save_figure(game: Calcudoku, filename, solution=False, draw_operations=True,
+                draw_partitions=True):
     size = int(np.sqrt(len(game.board)))
 
     plt.figure(figsize=(size, size))
@@ -36,43 +37,45 @@ def save_figure(game: Calcudoku, filename, solution=False):
 
             plt.text(x, y, str(number), ha='center')
 
-    # Put in the partition lines
-    for p in game.partitions:
-        coords = [(i // size, i % size) for i in p]
+    if draw_partitions:
+        # Put in the partition lines
+        for p in game.partitions:
+            coords = [(i // size, i % size) for i in p]
 
-        # For each coordinate we draw a thick box around the edges
-        # Not in the partition
-        for x, y in coords:
-            bordering = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
-            for border in bordering:
-                if border not in coords:
-                    if x == border[0]:
-                        diff_y = 0
-                    else:
-                        diff_y = 1
+            # For each coordinate we draw a thick box around the edges
+            # Not in the partition
+            for x, y in coords:
+                bordering = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
+                for border in bordering:
+                    if border not in coords:
+                        if x == border[0]:
+                            diff_y = 0
+                        else:
+                            diff_y = 1
 
-                    if y == border[1]:
-                        diff_x = 0
-                    else:
-                        diff_x = 1
+                        if y == border[1]:
+                            diff_x = 0
+                        else:
+                            diff_x = 1
 
-                    draw_x = (x + border[0])/2 + 0.5*diff_y
-                    draw_y = (y + border[1])/2 + 0.5*diff_x
+                        draw_x = (x + border[0])/2 + 0.5*diff_y
+                        draw_y = (y + border[1])/2 + 0.5*diff_x
 
-                    plt.plot([draw_x, draw_x + diff_x], [draw_y, draw_y + diff_y], 'k', linewidth=2)
+                        plt.plot([draw_x, draw_x + diff_x], [draw_y, draw_y + diff_y], 'k', linewidth=2)
 
-    # Add in the operation instructions
-    for p, op in zip(game.partitions, game.operations):
-        # Always want to draw in the upper left, so start with finding the maximum y of the partition
-        coords = [(i // size, i % size) for i in p]
-        max_y = max([c[1] for c in coords])
-        min_x = min([c[0] for c in coords if c[1] == max_y])
+    if draw_operations:
+        # Add in the operation instructions
+        for p, op in zip(game.partitions, game.operations):
+            # Always want to draw in the upper left, so start with finding the maximum y of the partition
+            coords = [(i // size, i % size) for i in p]
+            max_y = max([c[1] for c in coords])
+            min_x = min([c[0] for c in coords if c[1] == max_y])
 
-        max_y += 1 # Switch to the top of the cell
+            max_y += 1 # Switch to the top of the cell
 
-        if op[0] in OPERATION_DRAW:
-            vis = str(op[1]) + OPERATION_DRAW[op[0]]
-            plt.text(min_x + 0.1, max_y - 0.2, vis)
+            if op[0] in OPERATION_DRAW:
+                vis = str(op[1]) + OPERATION_DRAW[op[0]]
+                plt.text(min_x + 0.1, max_y - 0.2, vis)
 
     plt.savefig(filename, bbox_inches='tight')
     pass
